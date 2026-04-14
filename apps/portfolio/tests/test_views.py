@@ -234,3 +234,146 @@ class TestTransactionFiltering:
         response = api_client.get(f"/api/transactions/?executed_at_after={cutoff}")
         assert response.status_code == 200
         assert response.data["count"] == 1
+
+
+@pytest.mark.django_db
+class TestCSVExport:
+    def test_csv_export_holdings_success(
+        self,
+        api_client: APIClient,
+        client_obj: Client,
+        equity_asset: Asset,
+    ) -> None:
+        from unittest.mock import patch
+
+        Holding.objects.create(
+            client=client_obj,
+            asset=equity_asset,
+            quantity=Decimal("10"),
+            average_cost=Decimal("150.00"),
+        )
+        with patch("apps.portfolio.services.yf") as mock_yf:
+            mock_ticker = mock_yf.Ticker.return_value
+            mock_ticker.fast_info.get.return_value = 178.50
+            response = api_client.get(f"/api/clients/{client_obj.id}/export/?type=holdings")
+
+        assert response.status_code == 200
+        assert "text/csv" in response["Content-Type"]
+        content = response.content.decode("utf-8")
+        first_line = content.splitlines()[0]
+        assert "Asset Symbol" in first_line
+        assert "Allocation %" in first_line
+
+    def test_csv_export_transactions_success(
+        self,
+        api_client: APIClient,
+        client_obj: Client,
+        equity_asset: Asset,
+    ) -> None:
+        Transaction.objects.create(
+            client=client_obj,
+            asset=equity_asset,
+            transaction_type="buy",
+            quantity=Decimal("5"),
+            price=Decimal("150.00"),
+            total_value=Decimal("750.00"),
+            executed_at=timezone.now(),
+        )
+        response = api_client.get(f"/api/clients/{client_obj.id}/export/?type=transactions")
+        assert response.status_code == 200
+        assert "text/csv" in response["Content-Type"]
+        content = response.content.decode("utf-8")
+        first_line = content.splitlines()[0]
+        assert "Date" in first_line
+        assert "Asset Symbol" in first_line
+        assert "Total Value" in first_line
+
+    def test_csv_export_invalid_type(
+        self, api_client: APIClient, client_obj: Client
+    ) -> None:
+        response = api_client.get(f"/api/clients/{client_obj.id}/export/?type=invalid")
+        assert response.status_code == 400
+        assert "Invalid export type" in response.data["detail"]
+
+    def test_csv_export_other_users_client(
+        self, api_client: APIClient, other_user: User
+    ) -> None:
+        other_client = Client.objects.create(
+            owner=other_user,
+            first_name="Other",
+            last_name="Person",
+            email="otherperson@example.com",
+        )
+        response = api_client.get(f"/api/clients/{other_client.id}/export/?type=holdings")
+        assert response.status_code == 404
+
+
+@pytest.mark.django_db
+class TestPerformanceEndpoint:
+    def test_performance_default_period(
+        self,
+        api_client: APIClient,
+        client_obj: Client,
+        equity_asset: Asset,
+    ) -> None:
+        from unittest.mock import patch
+
+        Holding.objects.create(
+            client=client_obj,
+            asset=equity_asset,
+            quantity=Decimal("10"),
+            average_cost=Decimal("150.00"),
+        )
+        with patch("apps.portfolio.services.yf") as mock_yf:
+            mock_ticker = mock_yf.Ticker.return_value
+            mock_ticker.fast_info.get.return_value = 178.50
+            response = api_client.get(f"/api/clients/{client_obj.id}/performance/")
+
+        assert response.status_code == 200
+        expected_keys = {
+            "client_id",
+            "client_name",
+            "period_days",
+            "start_date",
+            "end_date",
+            "current_value",
+            "cost_basis",
+            "total_gain_loss",
+            "total_return_pct",
+            "transactions_in_period",
+            "net_invested_in_period",
+            "holdings_breakdown",
+        }
+        assert expected_keys.issubset(response.data.keys())
+
+    def test_performance_custom_period(
+        self,
+        api_client: APIClient,
+        client_obj: Client,
+    ) -> None:
+        from unittest.mock import patch
+
+        with patch("apps.portfolio.services.yf"):
+            response = api_client.get(f"/api/clients/{client_obj.id}/performance/?period=7")
+
+        assert response.status_code == 200
+        assert response.data["period_days"] == 7
+
+    def test_performance_invalid_period(
+        self, api_client: APIClient, client_obj: Client
+    ) -> None:
+        response = api_client.get(f"/api/clients/{client_obj.id}/performance/?period=15")
+        assert response.status_code == 400
+        assert "Invalid period" in response.data["detail"]
+
+    def test_performance_other_users_client(
+        self, api_client: APIClient, other_user: User
+    ) -> None:
+        other_client = Client.objects.create(
+            owner=other_user,
+            first_name="Other",
+            last_name="Person",
+            email="perf_other@example.com",
+        )
+        response = api_client.get(f"/api/clients/{other_client.id}/performance/")
+        assert response.status_code == 404

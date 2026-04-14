@@ -144,3 +144,61 @@ class TestPortfolioSummary:
         assert "equity_allocation_pct" in summary
         assert "bond_allocation_pct" in summary
         assert "cash_allocation_pct" in summary
+
+
+@pytest.mark.django_db
+class TestCalculatePerformance:
+    @patch("apps.portfolio.services.yf")
+    def test_calculate_performance_basic(
+        self,
+        mock_yf: MagicMock,
+        client_obj: Client,
+        equity_asset: Asset,
+    ) -> None:
+        mock_ticker = mock_yf.Ticker.return_value
+        mock_ticker.fast_info.get.return_value = 200.0
+
+        Holding.objects.create(
+            client=client_obj,
+            asset=equity_asset,
+            quantity=Decimal("10"),
+            average_cost=Decimal("150.00"),
+        )
+
+        result = PricingService.calculate_performance(client_obj, 30)
+
+        assert result["client_id"] == client_obj.id
+        assert result["client_name"] == str(client_obj)
+        assert result["period_days"] == 30
+        assert result["current_value"] == Decimal("2000.00")
+        assert result["cost_basis"] == Decimal("1500.00")
+        assert result["total_gain_loss"] == Decimal("500.00")
+        assert result["total_return_pct"] == Decimal("33.33")
+        assert result["transactions_in_period"] == 0
+        assert len(result["holdings_breakdown"]) == 1
+        breakdown = result["holdings_breakdown"][0]
+        assert breakdown["symbol"] == "AAPL"
+        assert breakdown["current_value"] == Decimal("2000.00")
+        assert breakdown["cost_basis"] == Decimal("1500.00")
+
+    @patch("apps.portfolio.services.yf")
+    def test_calculate_performance_zero_cost_basis(
+        self,
+        mock_yf: MagicMock,
+        client_obj: Client,
+        equity_asset: Asset,
+    ) -> None:
+        mock_ticker = mock_yf.Ticker.return_value
+        mock_ticker.fast_info.get.return_value = 100.0
+
+        Holding.objects.create(
+            client=client_obj,
+            asset=equity_asset,
+            quantity=Decimal("5"),
+            average_cost=Decimal("0"),
+        )
+
+        result = PricingService.calculate_performance(client_obj, 30)
+        assert result["total_return_pct"] == Decimal("0")
+        breakdown = result["holdings_breakdown"][0]
+        assert breakdown["return_pct"] == Decimal("0")

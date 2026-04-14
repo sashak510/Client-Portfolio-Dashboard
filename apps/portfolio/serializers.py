@@ -155,3 +155,33 @@ class PortfolioSummarySerializer(serializers.Serializer):
     bond_allocation_pct = serializers.DecimalField(max_digits=5, decimal_places=2)
     cash_allocation_pct = serializers.DecimalField(max_digits=5, decimal_places=2)
     top_holdings = serializers.ListField()
+
+
+class HoldingPerformanceSerializer(serializers.Serializer):
+    """Per-holding breakdown within a performance response."""
+
+    symbol = serializers.CharField()
+    name = serializers.CharField()
+    asset_type = serializers.CharField()
+    quantity = serializers.DecimalField(max_digits=14, decimal_places=4)
+    cost_basis = serializers.DecimalField(max_digits=14, decimal_places=2)
+    current_value = serializers.DecimalField(max_digits=14, decimal_places=2)
+    gain_loss = serializers.DecimalField(max_digits=14, decimal_places=2)
+    return_pct = serializers.DecimalField(max_digits=8, decimal_places=2)
+
+
+class PerformanceSerializer(serializers.Serializer):
+    """Read-only serialiser for portfolio performance analytics."""
+
+    client_id = serializers.IntegerField()
+    client_name = serializers.CharField()
+    period_days = serializers.IntegerField()
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    current_value = serializers.DecimalField(max_digits=14, decimal_places=2)
+    cost_basis = serializers.DecimalField(max_digits=14, decimal_places=2)
+    total_gain_loss = serializers.DecimalField(max_digits=14, decimal_places=2)
+    total_return_pct = serializers.DecimalField(max_digits=8, decimal_places=2)
+    transactions_in_period = serializers.IntegerField()
+    net_invested_in_period = serializers.DecimalField(max_digits=14, decimal_places=2)
+    holdings_breakdown = HoldingPerformanceSerializer(many=True)
