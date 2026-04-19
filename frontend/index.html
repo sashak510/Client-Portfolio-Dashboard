@@ -3,31 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PortfolioDash</title>
+  <title>Stasha</title>
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=3">
+  <!-- Apply saved theme before first paint to prevent flash -->
+  <script>
+    (function () {
+      var saved = localStorage.getItem('pd-theme');
+      if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <!-- Login Panel -->
   <div id="login-panel" class="login-overlay">
-    <div class="login-card">
-      <div class="login-logo">PortfolioDash</div>
-      <p class="login-subtitle">Sign in to your account</p>
-      <form id="login-form">
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" id="username" autocomplete="username" required>
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" autocomplete="current-password" required>
-        </div>
-        <div id="login-error" class="error-message" hidden></div>
-        <button type="submit" class="btn btn-primary btn-full">Sign In</button>
-      </form>
+    <div class="login-wrapper">
+      <div class="login-branding">
+        <img src="assets/stasha-logo.png" alt="Stasha" class="login-brand-logo">
+        <h1 class="login-brand-name">Stasha<span class="login-brand-dot">.</span></h1>
+        <p class="login-tagline">Your personal investment dashboard</p>
+      </div>
+      <div class="login-form-block">
+        <p class="login-subtitle">Sign in to continue</p>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" autocomplete="username" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" autocomplete="current-password" required>
+          </div>
+          <div id="login-error" class="error-message" hidden></div>
+          <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -36,29 +53,63 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar">
       <div class="sidebar-header">
-        <span class="sidebar-logo">PortfolioDash</span>
+        <span class="sidebar-logo">Stasha</span>
       </div>
       <nav class="sidebar-nav">
+        <span class="nav-group-label">Overview</span>
         <a href="#" class="nav-item active" data-view="dashboard">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           Dashboard
         </a>
-        <a href="#" class="nav-item" data-view="clients">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-          Clients
+
+        <span class="nav-group-label">Portfolio</span>
+        <a href="#" class="nav-item" data-view="accounts">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Accounts
         </a>
         <a href="#" class="nav-item" data-view="assets">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           Assets
         </a>
+        <a href="#" class="nav-item" data-view="watchlist">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Watchlist
+        </a>
+        <a href="#" class="nav-item" data-view="net-worth">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Net Worth
+        </a>
+
+        <span class="nav-group-label">Planning</span>
+        <a href="#" class="nav-item" data-view="goals">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+          Goals
+        </a>
+        <a href="#" class="nav-item" data-view="performance">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Performance
+        </a>
+
+        <span class="nav-group-label">Data</span>
+        <a href="#" class="nav-item" data-view="import">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Import CSV
+        </a>
+        <a href="#" class="nav-item" data-view="settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Settings
+        </a>
       </nav>
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-avatar" id="user-avatar">A</div>
-          <span id="user-display">advisor1</span>
+      <!-- Logo -->
+      <div class="sidebar-logo-footer">
+        <div class="sidebar-logo-group">
+          <img src="assets/stasha-logo.png" alt="Stasha" class="sidebar-logo-bottom">
         </div>
-        <button class="btn btn-secondary btn-sm" id="logout-btn">Logout</button>
       </div>
+
+
+
+
     </aside>
 
     <!-- Mobile top bar -->
@@ -66,59 +117,190 @@
       <button id="mobile-menu-btn" class="mobile-menu-btn">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
-      <span class="mobile-logo">PortfolioDash</span>
-      <button class="btn btn-secondary btn-sm" id="mobile-logout-btn">Logout</button>
+      <img src="assets/stasha-logo.png" alt="Stasha" class="mobile-logo-img">
+      <span class="mobile-logo">Stasha</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <select id="mobile-currency-selector" class="currency-select" title="Display currency" aria-label="Display currency">
+          <option value="GBP">GBP</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+        </select>
+        <button id="mobile-theme-toggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+          </svg>
+        </button>
+        <button class="btn btn-secondary btn-sm" id="mobile-logout-btn">Logout</button>
+      </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
-      <!-- Dashboard / Clients View -->
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="topbar-nametag" id="profile-nametag">
+          <div class="topbar-nametag-avatar-wrap" id="sidebar-avatar-wrap" title="Click to upload photo">
+            <div class="topbar-nametag-avatar" id="profile-avatar">S</div>
+            <div class="topbar-nametag-avatar-overlay">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <input type="file" id="avatar-file-input" accept="image/*" hidden>
+          </div>
+          <div class="topbar-nametag-text">
+            <span class="topbar-nametag-name" id="profile-display-name"></span>
+            <span class="topbar-nametag-role" id="user-job-title" hidden></span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <select id="currency-selector" class="currency-select" title="Display currency" aria-label="Display currency">
+            <option value="GBP">GBP</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+          </select>
+          <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+            </svg>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="send-summary-btn" title="Send monthly summary email" style="padding:4px 8px;font-size:11px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="logout-btn">Logout</button>
+        </div>
+      </div>
+
+      <!-- Dashboard View -->
       <section id="view-dashboard" class="view">
-        <h1 class="page-title">Dashboard</h1>
+        <div class="dashboard-greeting">
+          <div>
+            <h1 class="dashboard-greeting-title" id="dashboard-greeting-text">Good morning</h1>
+            <p class="dashboard-greeting-sub" id="dashboard-greeting-date"></p>
+          </div>
+          <div class="price-refresh-banner">
+            <div class="price-refresh-inner">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              <span>Auto price refresh</span>
+              <span class="price-refresh-sep">·</span>
+              <span class="price-refresh-sub">Prices update live every 5 min</span>
+            </div>
+          </div>
+        </div>
+
         <div class="summary-cards" id="dashboard-summary"></div>
+        <!-- Dashboard Charts Row -->
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;margin-bottom:24px;" id="dashboard-charts-row">
+          <!-- Portfolio Value Over Time -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header" style="flex-wrap:wrap;gap:8px;">
+              <h2 class="card-title">Portfolio Value Over Time</h2>
+              <div style="display:flex;gap:6px;" id="dashboard-range-btns">
+                <button class="btn btn-secondary btn-sm range-btn" data-range="1M">1M</button>
+                <button class="btn btn-secondary btn-sm range-btn active-range" data-range="3M">3M</button>
+                <button class="btn btn-secondary btn-sm range-btn" data-range="YTD">YTD</button>
+                <button class="btn btn-secondary btn-sm range-btn" data-range="1Y">1Y</button>
+                <button class="btn btn-secondary btn-sm range-btn" data-range="All">All</button>
+              </div>
+            </div>
+            <div class="chart-container" style="position:relative;height:220px;">
+              <canvas id="dashboard-line-chart"></canvas>
+              <div id="dashboard-line-empty" style="display:none;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;text-align:center;padding:16px;">
+                No snapshots yet. Take a snapshot from the Performance page to track your portfolio over time.
+              </div>
+            </div>
+          </div>
+          <!-- Allocation Donut -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <h2 class="card-title">Allocation</h2>
+            </div>
+            <div class="chart-container" style="max-width:280px;margin:0 auto;">
+              <canvas id="dashboard-donut-chart"></canvas>
+              <div id="dashboard-donut-empty" style="display:none;padding:32px 16px;text-align:center;color:var(--text-muted);font-size:13px;">
+                No holdings yet.
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">All Clients</h2>
+            <h2 class="card-title">Your Accounts</h2>
           </div>
+          <div class="table-controls mobile-hide-controls">
+            <div class="search-input-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="search-dashboard-accounts" placeholder="Search accounts..." aria-label="Search accounts">
+            </div>
+          </div>
+          <div class="mobile-card-list" id="mobile-cards-dashboard-accounts"></div>
           <div class="table-wrap">
-            <table class="table">
+            <table class="table" id="table-dashboard-accounts">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th class="text-right">Portfolio Value</th>
-                  <th>Created</th>
+                  <th class="sortable" data-col="0">Account Name <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="1">Type <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="2">Provider <span class="sort-indicator"></span></th>
+                  <th class="sortable text-right" data-col="3">Portfolio Value <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="4">Created <span class="sort-indicator"></span></th>
                 </tr>
               </thead>
-              <tbody id="clients-table-body">
-                <tr><td colspan="4" class="loading-cell"><div class="spinner"></div></td></tr>
+              <tbody id="accounts-table-body">
+                <tr><td colspan="5" class="loading-cell"><div class="spinner"></div></td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <!-- Clients View (same as dashboard for now) -->
-      <section id="view-clients" class="view" hidden>
-        <h1 class="page-title">Clients</h1>
-        <div class="summary-cards" id="clients-summary"></div>
+      <!-- Accounts View -->
+      <section id="view-accounts" class="view" hidden>
+        <h1 class="page-title">Your Accounts</h1>
+        <div class="price-refresh-banner">
+          <div class="price-refresh-inner">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Auto price refresh</span>
+            <span class="price-refresh-sep">·</span>
+            <span class="price-refresh-sub">Prices update live every 5 min</span>
+          </div>
+        </div>
+        <div class="summary-cards" id="accounts-summary"></div>
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">Client List</h2>
+            <h2 class="card-title">Account List</h2>
+            <button class="btn btn-primary btn-sm" id="add-account-btn">+ Add Account</button>
           </div>
+          <div class="table-controls mobile-hide-controls">
+            <div class="search-input-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="search-accounts" placeholder="Search accounts..." aria-label="Search accounts">
+            </div>
+          </div>
+          <div class="mobile-card-list" id="mobile-cards-accounts"></div>
           <div class="table-wrap">
-            <table class="table">
+            <table class="table" id="table-accounts">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th class="text-right">Portfolio Value</th>
-                  <th>Created</th>
+                  <th class="sortable" data-col="0">Account Name <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="1">Type <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="2">Provider <span class="sort-indicator"></span></th>
+                  <th class="sortable text-right" data-col="3">Portfolio Value <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="4">Created <span class="sort-indicator"></span></th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody id="clients-list-body">
-                <tr><td colspan="5" class="loading-cell"><div class="spinner"></div></td></tr>
+              <tbody id="accounts-list-body">
+                <tr><td colspan="6" class="loading-cell"><div class="spinner"></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -128,19 +310,34 @@
       <!-- Assets View -->
       <section id="view-assets" class="view" hidden>
         <h1 class="page-title">Assets</h1>
+        <div class="price-refresh-banner">
+          <div class="price-refresh-inner">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Auto price refresh</span>
+            <span class="price-refresh-sep">·</span>
+            <span class="price-refresh-sub">Prices update live every 5 min</span>
+          </div>
+        </div>
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Asset Registry</h2>
           </div>
+          <div class="table-controls mobile-hide-controls">
+            <div class="search-input-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="search-assets" placeholder="Search assets..." aria-label="Search assets">
+            </div>
+          </div>
+          <div class="mobile-card-list" id="mobile-cards-assets"></div>
           <div class="table-wrap">
-            <table class="table">
+            <table class="table" id="table-assets">
               <thead>
                 <tr>
-                  <th>Symbol</th>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th class="text-right">Last Price</th>
-                  <th>Price Updated</th>
+                  <th class="sortable" data-col="0">Symbol <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="1">Name <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="2">Type <span class="sort-indicator"></span></th>
+                  <th class="sortable text-right" data-col="3">Last Price <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="4">Price Updated <span class="sort-indicator"></span></th>
                 </tr>
               </thead>
               <tbody id="assets-table-body">
@@ -151,15 +348,527 @@
         </div>
       </section>
 
-      <!-- Client Detail View -->
-      <section id="view-client-detail" class="view" hidden>
-        <button class="btn btn-secondary btn-back" id="back-to-clients">
+      <!-- Watchlist View -->
+      <section id="view-watchlist" class="view" hidden>
+        <h1 class="page-title">Watchlist</h1>
+        <div class="price-refresh-banner">
+          <div class="price-refresh-inner">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Auto price refresh</span>
+            <span class="price-refresh-sep">·</span>
+            <span class="price-refresh-sub">Prices update live every 5 min</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Watched Assets</h2>
+            <button class="btn btn-primary btn-sm" id="add-watchlist-btn">+ Add Asset</button>
+          </div>
+          <div id="add-watchlist-form" class="watchlist-add-form" hidden>
+            <div style="display:flex;gap:8px;padding:12px 16px;flex-wrap:wrap;align-items:flex-end;">
+              <div class="form-group" style="margin:0;flex:1;min-width:120px;">
+                <label for="wl-asset-id" style="font-size:12px;">Asset</label>
+                <select id="wl-asset-id" style="width:100%;padding:6px 8px;border:1px solid var(--border-color);border-radius:4px;background:var(--input-bg);color:var(--text-primary);font-size:13px;"></select>
+              </div>
+              <div class="form-group" style="margin:0;flex:0 0 120px;">
+                <label for="wl-target-price" style="font-size:12px;">Target Price</label>
+                <input type="number" step="0.01" id="wl-target-price" placeholder="Optional" style="width:100%;padding:6px 8px;border:1px solid var(--border-color);border-radius:4px;background:var(--input-bg);color:var(--text-primary);font-size:13px;">
+              </div>
+              <div class="form-group" style="margin:0;flex:1;min-width:150px;">
+                <label for="wl-notes" style="font-size:12px;">Notes</label>
+                <input type="text" id="wl-notes" placeholder="Optional" style="width:100%;padding:6px 8px;border:1px solid var(--border-color);border-radius:4px;background:var(--input-bg);color:var(--text-primary);font-size:13px;">
+              </div>
+              <button class="btn btn-primary btn-sm" id="wl-save-btn">Save</button>
+              <button class="btn btn-secondary btn-sm" id="wl-cancel-btn">Cancel</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="table-watchlist">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th class="text-right">Current Price</th>
+                  <th class="text-right">Target Price</th>
+                  <th class="text-center">Signal</th>
+                  <th>Notes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="watchlist-table-body">
+                <tr><td colspan="8" class="loading-cell"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Net Worth View -->
+      <section id="view-net-worth" class="view" hidden>
+        <h1 class="page-title">Net Worth</h1>
+        <div class="price-refresh-banner">
+          <div class="price-refresh-inner">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Auto price refresh</span>
+            <span class="price-refresh-sep">·</span>
+            <span class="price-refresh-sub">Prices update live every 5 min</span>
+          </div>
+        </div>
+        <div class="summary-cards" id="net-worth-summary"></div>
+        <!-- Net Worth Chart -->
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <h2 class="card-title">Breakdown</h2>
+          </div>
+          <div class="chart-container" style="max-width:360px;">
+            <canvas id="net-worth-chart"></canvas>
+          </div>
+        </div>
+        <!-- Non-Investment Accounts Table -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Non-Investment Accounts</h2>
+            <button class="btn btn-primary btn-sm" id="add-nia-btn">+ Add Account</button>
+          </div>
+          <div id="nia-form-wrap" hidden style="padding:16px 22px;border-bottom:1px solid var(--border-subtle);">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;align-items:end;flex-wrap:wrap;">
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Account Name</label>
+                <input type="text" id="nia-name" placeholder="e.g. HSBC Savings">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Type</label>
+                <select id="nia-type">
+                  <option value="savings">Savings</option>
+                  <option value="property">Property</option>
+                  <option value="debt">Debt</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Balance (£)</label>
+                <input type="number" step="0.01" id="nia-balance" placeholder="0.00">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Notes</label>
+                <input type="text" id="nia-notes" placeholder="Optional">
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" id="nia-save-btn">Save</button>
+              <button class="btn btn-secondary btn-sm" id="nia-cancel-btn">Cancel</button>
+            </div>
+            <input type="hidden" id="nia-edit-id">
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="table-nia">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th class="text-right">Balance</th>
+                  <th>Notes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="nia-table-body">
+                <tr><td colspan="5" class="loading-cell"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Liabilities Table -->
+        <div class="card" style="margin-top:24px;">
+          <div class="card-header">
+            <h2 class="card-title">Liabilities</h2>
+            <button class="btn btn-primary btn-sm" id="add-liability-btn">+ Add Liability</button>
+          </div>
+          <div id="liability-form-wrap" hidden style="padding:16px 22px;border-bottom:1px solid var(--border-subtle);">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;align-items:end;flex-wrap:wrap;">
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Name</label>
+                <input type="text" id="liability-name" placeholder="e.g. Barclays Mortgage">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Type</label>
+                <select id="liability-type">
+                  <option value="mortgage">Mortgage</option>
+                  <option value="loan">Loan</option>
+                  <option value="credit_card">Credit Card</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Balance (£)</label>
+                <input type="number" step="0.01" id="liability-balance" placeholder="0.00">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Notes</label>
+                <input type="text" id="liability-notes" placeholder="Optional">
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" id="liability-save-btn">Save</button>
+              <button class="btn btn-secondary btn-sm" id="liability-cancel-btn">Cancel</button>
+            </div>
+            <input type="hidden" id="liability-edit-id">
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="table-liabilities">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th class="text-right">Balance</th>
+                  <th>Notes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="liability-table-body">
+                <tr><td colspan="5" class="loading-cell"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Goals View -->
+      <section id="view-goals" class="view" hidden>
+        <h1 class="page-title">Goals</h1>
+        <div class="price-refresh-banner">
+          <div class="price-refresh-inner">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Auto price refresh</span>
+            <span class="price-refresh-sep">·</span>
+            <span class="price-refresh-sub">Prices update live every 5 min</span>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <h2 class="card-title">Your Goals</h2>
+            <button class="btn btn-primary btn-sm" id="add-goal-btn">+ Add Goal</button>
+          </div>
+          <div id="goal-form-wrap" hidden style="padding:16px 22px;border-bottom:1px solid var(--border-subtle);">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;align-items:end;flex-wrap:wrap;">
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Goal Name</label>
+                <input type="text" id="goal-name" placeholder="e.g. House deposit">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Account (optional)</label>
+                <select id="goal-account">
+                  <option value="">Portfolio-wide</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Target Amount (£)</label>
+                <input type="number" step="0.01" id="goal-target" placeholder="0.00">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Target Date</label>
+                <input type="date" id="goal-date">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:12px;margin-bottom:0;">
+              <label style="font-size:12px;">Notes</label>
+              <input type="text" id="goal-notes" placeholder="Optional">
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" id="goal-save-btn">Save</button>
+              <button class="btn btn-secondary btn-sm" id="goal-cancel-btn">Cancel</button>
+            </div>
+            <input type="hidden" id="goal-edit-id">
+          </div>
+          <div id="goals-grid" style="padding:20px;"></div>
+        </div>
+      </section>
+
+      <!-- Performance View -->
+      <section id="view-performance" class="view" hidden>
+        <h1 class="page-title">Performance</h1>
+        <div class="price-refresh-banner">
+          <div class="price-refresh-inner">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Auto price refresh</span>
+            <span class="price-refresh-sep">·</span>
+            <span class="price-refresh-sub">Prices update live every 5 min</span>
+          </div>
+        </div>
+        <div class="summary-cards" id="performance-summary"></div>
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <h2 class="card-title">Portfolio Value Over Time</h2>
+            <button class="btn btn-primary btn-sm" id="take-snapshot-btn">Take Snapshot</button>
+          </div>
+          <div class="chart-container" style="min-height:260px;">
+            <canvas id="performance-chart"></canvas>
+            <div id="performance-empty" style="display:none;padding:40px;text-align:center;color:var(--text-muted);font-size:13px;">
+              No snapshot data yet. Click "Take Snapshot" to record today's value.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CSV Import View -->
+      <section id="view-import" class="view" hidden>
+        <h1 class="page-title">Import CSV</h1>
+        <div class="price-refresh-banner">
+          <div class="price-refresh-inner">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Auto price refresh</span>
+            <span class="price-refresh-sep">·</span>
+            <span class="price-refresh-sub">Prices update live every 5 min</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Upload Transactions</h2>
+          </div>
+          <div style="padding:20px;">
+            <div style="margin-bottom:16px;">
+              <label style="display:block;font-size:13px;color:var(--text-secondary);margin-bottom:6px;">Broker / format</label>
+              <select id="csv-broker-select" style="background:var(--bg-surface-2);border:1px solid var(--border-color);color:var(--text-primary);border-radius:6px;padding:6px 10px;font-size:13px;width:100%;max-width:280px;">
+                <option value="generic">Generic</option>
+                <option value="trading212">Trading 212</option>
+                <option value="vanguard_uk" disabled>Vanguard UK (coming soon)</option>
+                <option value="aj_bell" disabled>AJ Bell (coming soon)</option>
+              </select>
+            </div>
+            <p id="csv-columns-hint" style="color:var(--text-secondary);font-size:13px;margin-bottom:8px;">
+              Upload a CSV file with columns: <code style="background:var(--bg-surface-2);padding:2px 6px;border-radius:3px;font-size:12px;">symbol, quantity, price, date, type, account_id</code>
+            </p>
+            <p id="csv-sample-link-wrap" style="font-size:13px;margin-bottom:16px;display:none;">
+              <a id="csv-sample-link" href="#" style="color:var(--brand);text-decoration:underline;">Download sample CSV</a>
+            </p>
+            <div id="csv-drop-zone" class="csv-drop-zone">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-muted);">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <p style="margin:8px 0 4px;color:var(--text-secondary);font-size:14px;">Drag & drop a CSV file here</p>
+              <p style="color:var(--text-muted);font-size:12px;">or click to browse</p>
+              <input type="file" id="csv-file-input" accept=".csv" hidden>
+            </div>
+            <div id="csv-file-name" style="margin-top:8px;font-size:13px;color:var(--text-secondary);" hidden></div>
+            <button class="btn btn-primary" id="csv-upload-btn" style="margin-top:12px;" disabled>Upload & Import</button>
+            <div id="csv-results" hidden style="margin-top:16px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings View -->
+      <section id="view-settings" class="view" hidden>
+        <h1 class="page-title">Settings</h1>
+        <div class="price-refresh-banner">
+          <div class="price-refresh-inner">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Auto price refresh</span>
+            <span class="price-refresh-sep">·</span>
+            <span class="price-refresh-sub">Prices update live every 5 min</span>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h2 class="settings-section-title">Profile</h2>
+            <p class="settings-section-desc">Update your username and email address.</p>
+          </div>
+          <div class="settings-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="settings-first-name">First Name</label>
+                <input type="text" id="settings-first-name" placeholder="e.g. Sasha">
+              </div>
+              <div class="form-group">
+                <label for="settings-last-name">Last Name</label>
+                <input type="text" id="settings-last-name" placeholder="e.g. Karniyuk">
+              </div>
+              <div class="form-group">
+                <label for="settings-username">Username</label>
+                <input type="text" id="settings-username" placeholder="Username">
+              </div>
+              <div class="form-group">
+                <label for="settings-email">Email</label>
+                <input type="email" id="settings-email" placeholder="you@example.com">
+              </div>
+              <div class="form-group">
+                <label for="settings-region">Region</label>
+                <select id="settings-region">
+                  <option value="uk">United Kingdom</option>
+                  <option value="us">United States</option>
+                  <option value="europe">Europe</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="settings-job-title">Job Title / Bio <span style="font-size:11px;color:var(--text-faint);font-weight:400;">(optional — shown in nametag)</span></label>
+              <input type="text" id="settings-job-title" placeholder="e.g. Product Manager, Investor, Software Engineer">
+            </div>
+            <button class="btn btn-primary" id="settings-profile-save">Save Profile</button>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h2 class="settings-section-title">Change Password</h2>
+            <p class="settings-section-desc">Choose a strong password of at least 8 characters.</p>
+          </div>
+          <div class="settings-body">
+            <div class="form-group">
+              <label for="settings-current-pw">Current Password</label>
+              <input type="password" id="settings-current-pw" placeholder="••••••••">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="settings-new-pw">New Password</label>
+                <input type="password" id="settings-new-pw" placeholder="••••••••">
+              </div>
+              <div class="form-group">
+                <label for="settings-confirm-pw">Confirm New Password</label>
+                <input type="password" id="settings-confirm-pw" placeholder="••••••••">
+              </div>
+            </div>
+            <button class="btn btn-primary" id="settings-pw-save">Change Password</button>
+          </div>
+        </div>
+
+        <!-- Display -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h2 class="settings-section-title">Display</h2>
+            <p class="settings-section-desc">Preferences saved locally in your browser.</p>
+          </div>
+          <div class="settings-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="settings-default-currency">Default Currency</label>
+                <select id="settings-default-currency">
+                  <option value="GBP">GBP — British Pound</option>
+                  <option value="USD">USD — US Dollar</option>
+                  <option value="EUR">EUR — Euro</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="settings-landing-view">Default Landing View</label>
+                <select id="settings-landing-view">
+                  <option value="dashboard">Dashboard</option>
+                  <option value="accounts">Accounts</option>
+                  <option value="net-worth">Net Worth</option>
+                  <option value="performance">Performance</option>
+                  <option value="goals">Goals</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="settings-date-format">Date Format</label>
+                <select id="settings-date-format">
+                  <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                  <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                  <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="settings-display-save">Save Preferences</button>
+          </div>
+        </div>
+
+        <!-- Portfolio -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h2 class="settings-section-title">Portfolio</h2>
+            <p class="settings-section-desc">Control how your portfolio data is displayed.</p>
+          </div>
+          <div class="settings-body">
+            <div class="settings-toggle-row">
+              <div>
+                <div class="settings-toggle-label">Hide zero-balance holdings</div>
+                <div class="settings-toggle-desc">Remove holdings with no quantity from tables.</div>
+              </div>
+              <label class="settings-switch">
+                <input type="checkbox" id="settings-hide-zero">
+                <span class="settings-switch-track"></span>
+              </label>
+            </div>
+            <button class="btn btn-primary" id="settings-portfolio-save" style="margin-top:16px;">Save</button>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h2 class="settings-section-title">Notifications</h2>
+            <p class="settings-section-desc">Control email summaries and price alerts.</p>
+          </div>
+          <div class="settings-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="settings-summary-freq">Email Summary Frequency</label>
+                <select id="settings-summary-freq">
+                  <option value="never">Never</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
+            <div class="settings-toggle-row">
+              <div>
+                <div class="settings-toggle-label">Watchlist price alerts</div>
+                <div class="settings-toggle-desc">Email when a watched asset hits its target price.</div>
+              </div>
+              <label class="settings-switch">
+                <input type="checkbox" id="settings-price-alerts">
+                <span class="settings-switch-track"></span>
+              </label>
+            </div>
+            <button class="btn btn-primary" id="settings-notifications-save" style="margin-top:16px;">Save</button>
+          </div>
+        </div>
+
+        <!-- Data -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h2 class="settings-section-title">Data</h2>
+            <p class="settings-section-desc">Export or reset your portfolio data.</p>
+          </div>
+          <div class="settings-body">
+            <div class="settings-data-row">
+              <div>
+                <div class="settings-toggle-label">Export all data</div>
+                <div class="settings-toggle-desc">Download accounts, holdings, transactions and watchlist as a zip of CSVs.</div>
+              </div>
+              <button class="btn btn-secondary" id="settings-export-btn">Export ZIP</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="settings-section settings-danger-section">
+          <div class="settings-section-header">
+            <h2 class="settings-section-title settings-danger-title">Danger Zone</h2>
+            <p class="settings-section-desc">These actions are permanent and cannot be undone.</p>
+          </div>
+          <div class="settings-body">
+            <div class="settings-data-row">
+              <div>
+                <div class="settings-toggle-label">Delete my account</div>
+                <div class="settings-toggle-desc">Permanently delete your account and all associated data.</div>
+              </div>
+              <button class="btn settings-danger-btn" id="settings-delete-account-btn">Delete Account</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Account Detail View -->
+      <section id="view-account-detail" class="view" hidden>
+        <button class="btn btn-secondary btn-back" id="back-to-accounts">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          Back to Clients
+          Back to Accounts
         </button>
-        <div class="client-detail-header">
-          <h1 class="page-title" id="client-detail-name"></h1>
-          <p class="client-detail-meta" id="client-detail-meta"></p>
+        <div class="account-detail-header">
+          <h1 class="page-title" id="account-detail-name"></h1>
+          <p class="account-detail-meta" id="account-detail-meta"></p>
         </div>
 
         <!-- Portfolio Summary Cards -->
@@ -178,19 +887,28 @@
           <div class="card holdings-card">
             <div class="card-header">
               <h2 class="card-title">Holdings</h2>
+              <button class="btn btn-primary btn-sm" id="add-holding-btn">+ Add Holding</button>
+            </div>
+            <div class="table-controls">
+              <div class="search-input-wrap">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="search-input" id="search-holdings" placeholder="Search holdings..." aria-label="Search holdings">
+              </div>
             </div>
             <div class="table-wrap">
-              <table class="table">
+              <table class="table" id="table-holdings">
                 <thead>
                   <tr>
-                    <th>Symbol</th>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th class="text-right">Qty</th>
-                    <th class="text-right">Avg Cost</th>
-                    <th class="text-right">Value</th>
-                    <th class="text-right">Gain/Loss</th>
-                    <th class="text-right">Alloc %</th>
+                    <th class="sortable" data-col="0">Symbol <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-col="1">Name <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-col="2">Type <span class="sort-indicator"></span></th>
+                    <th class="sortable text-right" data-col="3">Qty <span class="sort-indicator"></span></th>
+                    <th class="sortable text-right" data-col="4">Avg Cost <span class="sort-indicator"></span></th>
+                    <th class="sortable text-right" data-col="5">Value <span class="sort-indicator"></span></th>
+                    <th class="sortable text-right" data-col="6">Gain/Loss <span class="sort-indicator"></span></th>
+                    <th class="sortable text-right" data-col="7">Alloc % <span class="sort-indicator"></span></th>
+                    <th data-col="8">Notes</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody id="holdings-table-body"></tbody>
@@ -199,34 +917,319 @@
           </div>
         </div>
 
+        <!-- Target Allocation vs Actual -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Target vs Actual Allocation</h2>
+          </div>
+          <div class="chart-container" style="max-width:600px;">
+            <canvas id="target-allocation-chart"></canvas>
+          </div>
+          <div id="target-allocation-empty" style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;" hidden>
+            No target allocations set for this account.
+          </div>
+        </div>
+
         <!-- Recent Transactions -->
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Recent Transactions</h2>
+            <button class="btn btn-primary btn-sm" id="add-transaction-btn">+ Add Transaction</button>
+          </div>
+          <div class="table-controls">
+            <div class="search-input-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="search-transactions" placeholder="Search transactions..." aria-label="Search transactions">
+            </div>
           </div>
           <div class="table-wrap">
-            <table class="table">
+            <table class="table" id="table-transactions">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Type</th>
-                  <th>Asset</th>
-                  <th class="text-right">Quantity</th>
-                  <th class="text-right">Price</th>
-                  <th class="text-right">Total Value</th>
+                  <th class="sortable" data-col="0">Date <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="1">Type <span class="sort-indicator"></span></th>
+                  <th class="sortable" data-col="2">Asset <span class="sort-indicator"></span></th>
+                  <th class="sortable text-right" data-col="3">Quantity <span class="sort-indicator"></span></th>
+                  <th class="sortable text-right" data-col="4">Price <span class="sort-indicator"></span></th>
+                  <th class="sortable text-right" data-col="5">Total Value <span class="sort-indicator"></span></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody id="transactions-table-body"></tbody>
             </table>
           </div>
         </div>
+
+        <!-- Dividend History -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Dividend History</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="table-dividends">
+              <thead>
+                <tr>
+                  <th>Payment Date</th>
+                  <th>Ex-Date</th>
+                  <th>Symbol</th>
+                  <th>Name</th>
+                  <th class="text-right">Per Share</th>
+                  <th class="text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="dividends-table-body">
+                <tr><td colspan="6" class="loading-cell" style="color:var(--text-muted)">No dividends</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recurring Contributions -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Recurring Contributions</h2>
+            <button class="btn btn-primary btn-sm" id="add-rc-btn">+ Set Up Contribution</button>
+          </div>
+          <div id="rc-form-wrap" hidden style="padding:16px 22px;border-bottom:1px solid var(--border-subtle);">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;align-items:end;flex-wrap:wrap;">
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Amount (£)</label>
+                <input type="number" step="0.01" id="rc-amount" placeholder="0.00">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Frequency</label>
+                <select id="rc-frequency">
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="annually">Annually</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Start Date</label>
+                <input type="date" id="rc-start-date">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:12px;">Notes</label>
+                <input type="text" id="rc-notes" placeholder="Optional">
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" id="rc-save-btn">Save</button>
+              <button class="btn btn-secondary btn-sm" id="rc-cancel-btn">Cancel</button>
+            </div>
+            <input type="hidden" id="rc-edit-id">
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="table-rc">
+              <thead>
+                <tr>
+                  <th class="text-right">Amount</th>
+                  <th>Frequency</th>
+                  <th>Start Date</th>
+                  <th>Next Due</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="rc-table-body">
+                <tr><td colspan="7" class="loading-cell" style="color:var(--text-muted)">No contributions set up</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Monthly Contributions Chart -->
+          <div style="padding:20px 22px 0;">
+            <h3 style="font-size:14px;font-weight:500;color:var(--text-muted);margin-bottom:12px;">Monthly Contributions</h3>
+          </div>
+          <div class="chart-container" style="max-width:700px;padding-bottom:24px;">
+            <canvas id="contributions-chart"></canvas>
+          </div>
+        </div>
       </section>
     </main>
+
+    <!-- AI Chat: Three-State Widget (closed → panel → expanded) -->
+    <div id="ai-chat-widget" class="ai-chat-widget" data-state="closed">
+
+      <!-- Closed: pill trigger button -->
+      <button class="ai-chat-trigger" id="ai-chat-trigger" aria-label="Open AI chat">
+        <div class="ai-chat-spark-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        </div>
+        <span class="ai-chat-trigger-label">AI Assistant</span>
+      </button>
+
+      <!-- Panel + Expanded: full chat UI -->
+      <div class="ai-chat-panel">
+        <div class="ai-chat-header" id="ai-chat-header">
+          <div class="ai-chat-header-left">
+            <div class="ai-chat-spark-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+            </div>
+            <span class="ai-chat-title">AI Assistant</span>
+            <span class="ai-chat-subtitle">Portfolio &amp; strategy</span>
+          </div>
+          <div class="ai-chat-header-actions">
+            <button class="ai-chat-icon-btn" id="ai-chat-new-btn" title="New conversation" aria-label="New conversation">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button class="ai-chat-icon-btn" id="ai-chat-history-btn" title="Previous conversations" aria-label="Previous conversations">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </button>
+            <button class="ai-chat-icon-btn" id="ai-chat-expand-btn" title="Expand to full view" aria-label="Expand chat">
+              <svg class="ai-chat-expand-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+            </button>
+            <button class="ai-chat-icon-btn ai-chat-close-btn" id="ai-chat-close-btn" title="Close" aria-label="Close chat">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="ai-chat-body" id="ai-chat-body">
+          <div class="ai-chat-messages" id="ai-chat-messages">
+            <div class="ai-chat-welcome">
+              <p>Hi! Ask me about stock prices, portfolio analysis, or investment strategy. <span class="ai-chat-disclaimer">Not a financial advisor — for guidance only.</span></p>
+            </div>
+          </div>
+        </div>
+        <div class="ai-chat-input-row">
+          <input type="text" class="ai-chat-input" id="ai-chat-input" placeholder="Ask about stocks, portfolio &amp; strategy…" autocomplete="off" maxlength="500">
+          <button class="ai-chat-send" id="ai-chat-send" title="Send" aria-label="Send message">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Toast container -->
   <div id="toast-container" class="toast-container"></div>
 
-  <script src="app.js"></script>
+  <!-- ── Modal: Add / Edit Account ──────────────────────────────────────── -->
+  <div id="modal-account" class="modal-overlay" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-account-title">Add Account</h3>
+        <button class="modal-close-btn" data-modal="modal-account" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="acc-name">Account Name</label>
+          <input type="text" id="acc-name" placeholder="e.g. Vanguard ISA" required>
+        </div>
+        <div class="form-group">
+          <label for="acc-type">Account Type</label>
+          <select id="acc-type">
+            <option value="ISA">ISA</option>
+            <option value="SIPP">SIPP</option>
+            <option value="GIA">GIA</option>
+            <option value="Brokerage">Brokerage</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="acc-provider">Provider</label>
+          <input type="text" id="acc-provider" placeholder="e.g. Vanguard">
+        </div>
+        <div class="form-group">
+          <label for="acc-currency">Currency</label>
+          <select id="acc-currency">
+            <option value="GBP">GBP — British Pound</option>
+            <option value="USD">USD — US Dollar</option>
+            <option value="EUR">EUR — Euro</option>
+          </select>
+        </div>
+        <input type="hidden" id="acc-edit-id">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal="modal-account">Cancel</button>
+        <button class="btn btn-primary" id="modal-account-save">Save Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Add / Edit Holding ──────────────────────────────────────── -->
+  <div id="modal-holding" class="modal-overlay" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-holding-title">Add Holding</h3>
+        <button class="modal-close-btn" data-modal="modal-holding" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="holding-asset">Asset</label>
+          <select id="holding-asset">
+            <option value="">Loading assets...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="holding-qty">Quantity</label>
+          <input type="number" id="holding-qty" step="0.0001" min="0" placeholder="0.0000">
+        </div>
+        <div class="form-group">
+          <label for="holding-avg-price">Average Buy Price</label>
+          <input type="number" id="holding-avg-price" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="holding-notes">Notes</label>
+          <input type="text" id="holding-notes" placeholder="Optional">
+        </div>
+        <input type="hidden" id="holding-edit-id">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal="modal-holding">Cancel</button>
+        <button class="btn btn-primary" id="modal-holding-save">Save Holding</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Add / Edit Transaction ──────────────────────────────────── -->
+  <div id="modal-transaction" class="modal-overlay" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-transaction-title">Add Transaction</h3>
+        <button class="modal-close-btn" data-modal="modal-transaction" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="tx-asset">Asset</label>
+          <select id="tx-asset">
+            <option value="">Loading assets...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="tx-type">Transaction Type</label>
+          <select id="tx-type">
+            <option value="buy">BUY</option>
+            <option value="sell">SELL</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="tx-qty">Quantity</label>
+          <input type="number" id="tx-qty" step="0.0001" min="0" placeholder="0.0000">
+        </div>
+        <div class="form-group">
+          <label for="tx-price">Price per Unit</label>
+          <input type="number" id="tx-price" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="tx-date">Date</label>
+          <input type="date" id="tx-date">
+        </div>
+        <input type="hidden" id="tx-edit-id">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal="modal-transaction">Cancel</button>
+        <button class="btn btn-primary" id="modal-transaction-save">Save Transaction</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=3"></script>
 </body>
 </html>

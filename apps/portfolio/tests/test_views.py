@@ -7,17 +7,17 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from apps.portfolio.models import Asset, Client, Holding, Transaction
+from apps.portfolio.models import Account, Asset, Holding, Transaction
 
 
 @pytest.fixture
 def user(db) -> User:
-    return User.objects.create_user(username="advisor1", password="pass123")
+    return User.objects.create_user(username="user1", password="pass123")
 
 
 @pytest.fixture
 def other_user(db) -> User:
-    return User.objects.create_user(username="advisor2", password="pass456")
+    return User.objects.create_user(username="user2", password="pass456")
 
 
 @pytest.fixture
@@ -58,60 +58,59 @@ def bond_asset(db) -> Asset:
 
 
 @pytest.fixture
-def client_obj(user: User) -> Client:
-    return Client.objects.create(
+def account_obj(user: User) -> Account:
+    return Account.objects.create(
         owner=user,
-        first_name="John",
-        last_name="Doe",
-        email="john@example.com",
+        account_name="Vanguard ISA",
+        account_type=Account.AccountType.ISA,
+        provider="Vanguard",
     )
 
 
 @pytest.mark.django_db
-class TestClientCRUD:
-    def test_create_client(self, api_client: APIClient) -> None:
+class TestAccountCRUD:
+    def test_create_account(self, api_client: APIClient) -> None:
         data = {
-            "first_name": "Jane",
-            "last_name": "Smith",
-            "email": "jane@example.com",
+            "account_name": "AJ Bell SIPP",
+            "account_type": "sipp",
+            "provider": "AJ Bell",
         }
-        response = api_client.post("/api/clients/", data)
+        response = api_client.post("/api/accounts/", data)
         assert response.status_code == 201
-        assert response.data["first_name"] == "Jane"
+        assert response.data["account_name"] == "AJ Bell SIPP"
 
-    def test_list_clients(self, api_client: APIClient, client_obj: Client) -> None:
-        response = api_client.get("/api/clients/")
+    def test_list_accounts(self, api_client: APIClient, account_obj: Account) -> None:
+        response = api_client.get("/api/accounts/")
         assert response.status_code == 200
         assert response.data["count"] == 1
 
-    def test_retrieve_client(self, api_client: APIClient, client_obj: Client) -> None:
-        response = api_client.get(f"/api/clients/{client_obj.id}/")
+    def test_retrieve_account(self, api_client: APIClient, account_obj: Account) -> None:
+        response = api_client.get(f"/api/accounts/{account_obj.id}/")
         assert response.status_code == 200
-        assert response.data["first_name"] == "John"
+        assert response.data["account_name"] == "Vanguard ISA"
 
-    def test_update_client(self, api_client: APIClient, client_obj: Client) -> None:
+    def test_update_account(self, api_client: APIClient, account_obj: Account) -> None:
         response = api_client.patch(
-            f"/api/clients/{client_obj.id}/",
-            {"phone": "+1234567890"},
+            f"/api/accounts/{account_obj.id}/",
+            {"provider": "Vanguard UK"},
         )
         assert response.status_code == 200
-        assert response.data["phone"] == "+1234567890"
+        assert response.data["provider"] == "Vanguard UK"
 
-    def test_delete_client(self, api_client: APIClient, client_obj: Client) -> None:
-        response = api_client.delete(f"/api/clients/{client_obj.id}/")
+    def test_delete_account(self, api_client: APIClient, account_obj: Account) -> None:
+        response = api_client.delete(f"/api/accounts/{account_obj.id}/")
         assert response.status_code == 204
-        assert not Client.objects.filter(id=client_obj.id).exists()
+        assert not Account.objects.filter(id=account_obj.id).exists()
 
-    def test_user_cannot_see_other_users_clients(
+    def test_user_cannot_see_other_users_accounts(
         self, other_user: User, api_client: APIClient
     ) -> None:
-        Client.objects.create(
+        Account.objects.create(
             owner=other_user,
-            first_name="Other",
-            last_name="Client",
-            email="other@example.com",
+            account_name="Other GIA",
+            account_type=Account.AccountType.GIA,
         )
-        response = api_client.get("/api/clients/")
+        response = api_client.get("/api/accounts/")
         assert response.data["count"] == 0
 
 
@@ -120,23 +119,23 @@ class TestPortfolioSummary:
     def test_portfolio_summary_structure(
         self,
         api_client: APIClient,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
         cash_asset: Asset,
     ) -> None:
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             quantity=Decimal("10"),
             average_cost=Decimal("150.00"),
         )
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=cash_asset,
             quantity=Decimal("5000"),
             average_cost=Decimal("1.00"),
         )
-        response = api_client.get(f"/api/clients/{client_obj.id}/portfolio-summary/")
+        response = api_client.get(f"/api/accounts/{account_obj.id}/portfolio-summary/")
         assert response.status_code == 200
         assert "total_value" in response.data
         assert "equity_allocation_pct" in response.data
@@ -151,17 +150,17 @@ class TestTransactionValidation:
     def test_sell_exceeds_holding(
         self,
         api_client: APIClient,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
     ) -> None:
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             quantity=Decimal("10"),
             average_cost=Decimal("150.00"),
         )
         data = {
-            "client": client_obj.id,
+            "account": account_obj.id,
             "asset": equity_asset.id,
             "transaction_type": "sell",
             "quantity": "20.0000",
@@ -177,12 +176,12 @@ class TestTransactionFiltering:
     def test_filter_by_type(
         self,
         api_client: APIClient,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
     ) -> None:
         now = timezone.now()
         Transaction.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             transaction_type="buy",
             quantity=Decimal("10"),
@@ -191,7 +190,7 @@ class TestTransactionFiltering:
             executed_at=now,
         )
         Transaction.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             transaction_type="sell",
             quantity=Decimal("5"),
@@ -206,14 +205,14 @@ class TestTransactionFiltering:
     def test_filter_by_date_range(
         self,
         api_client: APIClient,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
     ) -> None:
         from datetime import timedelta
 
         now = timezone.now()
         Transaction.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             transaction_type="buy",
             quantity=Decimal("10"),
@@ -222,7 +221,7 @@ class TestTransactionFiltering:
             executed_at=now - timedelta(days=30),
         )
         Transaction.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             transaction_type="buy",
             quantity=Decimal("5"),
@@ -241,13 +240,13 @@ class TestCSVExport:
     def test_csv_export_holdings_success(
         self,
         api_client: APIClient,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
     ) -> None:
         from unittest.mock import patch
 
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             quantity=Decimal("10"),
             average_cost=Decimal("150.00"),
@@ -255,7 +254,7 @@ class TestCSVExport:
         with patch("apps.portfolio.services.yf") as mock_yf:
             mock_ticker = mock_yf.Ticker.return_value
             mock_ticker.fast_info.get.return_value = 178.50
-            response = api_client.get(f"/api/clients/{client_obj.id}/export/?type=holdings")
+            response = api_client.get(f"/api/accounts/{account_obj.id}/export/?type=holdings")
 
         assert response.status_code == 200
         assert "text/csv" in response["Content-Type"]
@@ -267,11 +266,11 @@ class TestCSVExport:
     def test_csv_export_transactions_success(
         self,
         api_client: APIClient,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
     ) -> None:
         Transaction.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             transaction_type="buy",
             quantity=Decimal("5"),
@@ -279,7 +278,7 @@ class TestCSVExport:
             total_value=Decimal("750.00"),
             executed_at=timezone.now(),
         )
-        response = api_client.get(f"/api/clients/{client_obj.id}/export/?type=transactions")
+        response = api_client.get(f"/api/accounts/{account_obj.id}/export/?type=transactions")
         assert response.status_code == 200
         assert "text/csv" in response["Content-Type"]
         content = response.content.decode("utf-8")
@@ -289,22 +288,21 @@ class TestCSVExport:
         assert "Total Value" in first_line
 
     def test_csv_export_invalid_type(
-        self, api_client: APIClient, client_obj: Client
+        self, api_client: APIClient, account_obj: Account
     ) -> None:
-        response = api_client.get(f"/api/clients/{client_obj.id}/export/?type=invalid")
+        response = api_client.get(f"/api/accounts/{account_obj.id}/export/?type=invalid")
         assert response.status_code == 400
         assert "Invalid export type" in response.data["detail"]
 
-    def test_csv_export_other_users_client(
+    def test_csv_export_other_users_account(
         self, api_client: APIClient, other_user: User
     ) -> None:
-        other_client = Client.objects.create(
+        other_account = Account.objects.create(
             owner=other_user,
-            first_name="Other",
-            last_name="Person",
-            email="otherperson@example.com",
+            account_name="Other GIA",
+            account_type=Account.AccountType.GIA,
         )
-        response = api_client.get(f"/api/clients/{other_client.id}/export/?type=holdings")
+        response = api_client.get(f"/api/accounts/{other_account.id}/export/?type=holdings")
         assert response.status_code == 404
 
 
@@ -313,13 +311,13 @@ class TestPerformanceEndpoint:
     def test_performance_default_period(
         self,
         api_client: APIClient,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
     ) -> None:
         from unittest.mock import patch
 
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             quantity=Decimal("10"),
             average_cost=Decimal("150.00"),
@@ -327,12 +325,12 @@ class TestPerformanceEndpoint:
         with patch("apps.portfolio.services.yf") as mock_yf:
             mock_ticker = mock_yf.Ticker.return_value
             mock_ticker.fast_info.get.return_value = 178.50
-            response = api_client.get(f"/api/clients/{client_obj.id}/performance/")
+            response = api_client.get(f"/api/accounts/{account_obj.id}/performance/")
 
         assert response.status_code == 200
         expected_keys = {
-            "client_id",
-            "client_name",
+            "account_id",
+            "account_name",
             "period_days",
             "start_date",
             "end_date",
@@ -349,31 +347,30 @@ class TestPerformanceEndpoint:
     def test_performance_custom_period(
         self,
         api_client: APIClient,
-        client_obj: Client,
+        account_obj: Account,
     ) -> None:
         from unittest.mock import patch
 
         with patch("apps.portfolio.services.yf"):
-            response = api_client.get(f"/api/clients/{client_obj.id}/performance/?period=7")
+            response = api_client.get(f"/api/accounts/{account_obj.id}/performance/?period=7")
 
         assert response.status_code == 200
         assert response.data["period_days"] == 7
 
     def test_performance_invalid_period(
-        self, api_client: APIClient, client_obj: Client
+        self, api_client: APIClient, account_obj: Account
     ) -> None:
-        response = api_client.get(f"/api/clients/{client_obj.id}/performance/?period=15")
+        response = api_client.get(f"/api/accounts/{account_obj.id}/performance/?period=15")
         assert response.status_code == 400
         assert "Invalid period" in response.data["detail"]
 
-    def test_performance_other_users_client(
+    def test_performance_other_users_account(
         self, api_client: APIClient, other_user: User
     ) -> None:
-        other_client = Client.objects.create(
+        other_account = Account.objects.create(
             owner=other_user,
-            first_name="Other",
-            last_name="Person",
-            email="perf_other@example.com",
+            account_name="Other SIPP",
+            account_type=Account.AccountType.SIPP,
         )
-        response = api_client.get(f"/api/clients/{other_client.id}/performance/")
+        response = api_client.get(f"/api/accounts/{other_account.id}/performance/")
         assert response.status_code == 404

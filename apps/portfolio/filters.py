@@ -6,7 +6,7 @@ from apps.portfolio.models import Asset, Holding, Transaction
 
 
 class TransactionFilter(django_filters.FilterSet):
-    """Filter transactions by client, asset, type, and date range."""
+    """Filter transactions by account, asset, type, and date range."""
 
     executed_at_after = django_filters.DateTimeFilter(
         field_name="executed_at", lookup_expr="gte"
@@ -17,17 +17,17 @@ class TransactionFilter(django_filters.FilterSet):
 
     class Meta:
         model = Transaction
-        fields = ("client", "asset", "transaction_type")
+        fields = ("account", "asset", "transaction_type")
 
 
 class HoldingFilter(django_filters.FilterSet):
-    """Filter holdings by client and asset type."""
+    """Filter holdings by account and asset type."""
 
     asset_type = django_filters.CharFilter(field_name="asset__asset_type")
 
     class Meta:
         model = Holding
-        fields = ("client",)
+        fields = ("account",)
 
 
 class AssetFilter(django_filters.FilterSet):

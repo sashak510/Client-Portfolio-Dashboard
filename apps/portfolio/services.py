@@ -3,11 +3,14 @@
 from decimal import Decimal
 from typing import Any
 
-import yfinance as yf
+import requests
+from django.conf import settings
 from django.db.models import QuerySet
 from django.utils import timezone
 
-from apps.portfolio.models import Asset, Client
+from apps.portfolio.models import Account, Asset, Dividend, ExchangeRate
+
+_ALPHA_VANTAGE_URL = "https://www.alphavantage.co/query"
 
 
 class PricingService:
@@ -21,8 +24,8 @@ class PricingService:
 
         - Cash: always Decimal('1.0').
         - Bond: face_value.
-        - Equity: fetch from yfinance with caching.
-        Falls back to cached price, then Decimal('0').
+        - Equity: fetch from Alpha Vantage GLOBAL_QUOTE with 15-min caching.
+        Falls back to asset.last_price, then Decimal('0') if unavailable.
         """
         if asset.asset_type == Asset.AssetType.CASH:
             return Decimal("1.0")
@@ -40,19 +43,29 @@ class PricingService:
         ):
             return asset.last_price
 
-        # Fetch from yfinance
-        try:
-            ticker = yf.Ticker(asset.symbol)
-            price = ticker.fast_info.get("lastPrice")
-            if price is None:
-                price = (ticker.info or {}).get("currentPrice")
-            if price is not None:
-                asset.last_price = Decimal(str(price))
-                asset.price_updated_at = now
-                asset.save(update_fields=["last_price", "price_updated_at"])
-                return asset.last_price
-        except Exception:
-            pass
+        # Fetch from Alpha Vantage
+        api_key = getattr(settings, "ALPHA_VANTAGE_API_KEY", "")
+        if api_key:
+            try:
+                response = requests.get(
+                    _ALPHA_VANTAGE_URL,
+                    params={
+                        "function": "GLOBAL_QUOTE",
+                        "symbol": asset.symbol,
+                        "apikey": api_key,
+                    },
+                    timeout=10,
+                )
+                response.raise_for_status()
+                data = response.json()
+                price_str = data.get("Global Quote", {}).get("05. price")
+                if price_str:
+                    asset.last_price = Decimal(str(price_str))
+                    asset.price_updated_at = now
+                    asset.save(update_fields=["last_price", "price_updated_at"])
+                    return asset.last_price
+            except Exception:
+                pass
 
         # Fallback to cached price
         if asset.last_price is not None:
@@ -68,44 +81,72 @@ class PricingService:
         return results
 
     @staticmethod
-    def calculate_portfolio_summary(client: Client) -> dict[str, Any]:
-        """Return a full portfolio summary dict for a client."""
-        holdings = client.holdings.select_related("asset").all()
+    def calculate_portfolio_summary(account: Account) -> dict[str, Any]:
+        """Return a full portfolio summary dict for an account."""
+        from django.db.models import Sum
+
+        holdings = account.holdings.select_related("asset").all()
 
         total_value = Decimal("0")
         total_cost = Decimal("0")
         equity_value = Decimal("0")
         bond_value = Decimal("0")
         cash_value = Decimal("0")
+        total_dividends = Decimal("0")
         holding_values: list[dict[str, Any]] = []
 
         for holding in holdings:
             price = PricingService.get_current_price(holding.asset)
             current_value = holding.quantity * price
             cost_basis = holding.quantity * holding.average_cost
-            total_value += current_value
-            total_cost += cost_basis
+
+            # Convert to GBP using exchange rate
+            currency = getattr(holding.asset, "currency", "GBP") or "GBP"
+            fx_rate = ExchangeRate.get_rate(currency, "GBP")
+            value_in_gbp = current_value * fx_rate
+            cost_in_gbp = cost_basis * fx_rate
+
+            total_value += value_in_gbp
+            total_cost += cost_in_gbp
 
             if holding.asset.asset_type == Asset.AssetType.EQUITY:
-                equity_value += current_value
+                equity_value += value_in_gbp
             elif holding.asset.asset_type == Asset.AssetType.BOND:
-                bond_value += current_value
+                bond_value += value_in_gbp
             elif holding.asset.asset_type == Asset.AssetType.CASH:
-                cash_value += current_value
+                cash_value += value_in_gbp
+
+            # Dividend totals per holding
+            holding_dividends = (
+                Dividend.objects.filter(holding=holding).aggregate(
+                    total=Sum("amount")
+                )["total"]
+                or Decimal("0")
+            )
+            total_dividends += holding_dividends
+            dividend_yield_pct = (
+                (holding_dividends / value_in_gbp * 100).quantize(Decimal("0.01"))
+                if value_in_gbp > 0
+                else Decimal("0")
+            )
 
             holding_values.append(
                 {
                     "symbol": holding.asset.symbol,
                     "name": holding.asset.name,
                     "asset_type": holding.asset.asset_type,
+                    "currency": currency,
                     "quantity": holding.quantity,
                     "current_value": current_value,
-                    "gain_loss": current_value - cost_basis,
+                    "value_in_gbp": value_in_gbp,
+                    "gain_loss": value_in_gbp - cost_in_gbp,
+                    "total_dividends": holding_dividends,
+                    "dividend_yield_percent": dividend_yield_pct,
                 }
             )
 
-        # Sort by value descending, take top 5
-        holding_values.sort(key=lambda h: h["current_value"], reverse=True)
+        # Sort by GBP value descending, take top 5
+        holding_values.sort(key=lambda h: h["value_in_gbp"], reverse=True)
         top_holdings = holding_values[:5]
 
         if total_value > 0:
@@ -122,10 +163,11 @@ class PricingService:
             "bond_allocation_pct": bond_pct,
             "cash_allocation_pct": cash_pct,
             "top_holdings": top_holdings,
+            "total_dividends": total_dividends,
         }
 
     @staticmethod
-    def calculate_performance(client: Client, period_days: int) -> dict[str, Any]:
+    def calculate_performance(account: Account, period_days: int) -> dict[str, Any]:
         """Calculate portfolio performance over the given period (7/30/90/365 days)."""
         from datetime import timedelta
 
@@ -138,7 +180,7 @@ class PricingService:
         end_date = now.date()
         start_date = (now - timedelta(days=period_days)).date()
 
-        holdings = client.holdings.select_related("asset").all()
+        holdings = account.holdings.select_related("asset").all()
 
         total_current_value = Decimal("0")
         total_cost_basis = Decimal("0")
@@ -179,7 +221,7 @@ class PricingService:
         )
 
         period_txns = Transaction.objects.filter(
-            client=client,
+            account=account,
             executed_at__date__gte=start_date,
             executed_at__date__lte=end_date,
         )
@@ -206,8 +248,8 @@ class PricingService:
         net_invested_in_period = inflow - outflow
 
         return {
-            "client_id": client.id,
-            "client_name": str(client),
+            "account_id": account.id,
+            "account_name": str(account),
             "period_days": period_days,
             "start_date": start_date,
             "end_date": end_date,

@@ -1,6 +1,6 @@
-# PortfolioDash Frontend
+# Stasha Frontend
 
-A lightweight, single-page dashboard for the Client Portfolio Dashboard API. Built with vanilla HTML, CSS, and JavaScript — no frameworks, no build step.
+A lightweight, single-page dashboard for the Stasha personal finance API. Built with vanilla HTML, CSS, and JavaScript — no frameworks, no build step.
 
 <!-- Add screenshot here -->
 
@@ -27,14 +27,14 @@ Then visit `http://localhost:5500`.
 
 ## Default Login
 
-- **Username:** `advisor1`
+- **Username:** `adviser1`
 - **Password:** `testpass123`
 
 ## Features
 
 - JWT authentication with automatic token refresh
-- Dashboard with client list and total AUM
-- Client detail view with portfolio summary, allocation chart, holdings, and transactions
+- Dashboard with your accounts and total portfolio value
+- Account detail view with portfolio summary, allocation chart, holdings, and transactions
 - Asset registry view
 - Responsive design — works on mobile
 - Professional fintech-style design system

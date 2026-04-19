@@ -1,4 +1,4 @@
-# PortfolioDash
+# Stasha
 
 A production-ready REST API for managing multi-asset investment portfolios, built with Django REST Framework.
 
@@ -11,7 +11,7 @@ A production-ready REST API for managing multi-asset investment portfolios, buil
 
 ## Overview
 
-PortfolioDash is a multi-tenant portfolio management API built for financial advisors who need to track client investments across equities, bonds, and cash. Each advisor sees only their own clients; holdings are priced in real time via yfinance with a staleness-aware cache layer. The project demonstrates DRF best practices — service layer architecture, scoped querysets, Decimal precision for all monetary values, JWT authentication, and a comprehensive pytest suite with all external dependencies mocked.
+Stasha is a personal investment portfolio management application for tracking your own holdings across equities, bonds, and cash. Holdings are priced in real time via yfinance with a staleness-aware cache layer. The project demonstrates DRF best practices — service layer architecture, scoped querysets, Decimal precision for all monetary values, JWT authentication, and a comprehensive pytest suite with all external dependencies mocked.
 
 ---
 
@@ -25,7 +25,10 @@ PortfolioDash is a multi-tenant portfolio management API built for financial adv
 - **Filtering and pagination** — filter transactions by type, date range, client; paginated list responses
 - **Auto-generated API docs** — OpenAPI 3.0 schema + Swagger UI via drf-spectacular
 - **Docker-ready** — single `docker-compose up --build` to run locally
-- **23+ tests** — models, services, and views; no real network calls in CI
+- **CSV export** — download holdings or transaction history per client
+- **Performance reporting** — gain/loss and return % over 7, 30, 90, or 365 days
+- **Frontend dashboard** — vanilla JS single-page app with charts, tables, and responsive layout
+- **33 tests** — models, services, and views; no real network calls in CI
 
 ---
 
@@ -90,25 +93,27 @@ The API will be available at [http://localhost:8000/api/docs/](http://localhost:
 
 ## API Endpoints
 
-| Method              | Endpoint                              | Description                        | Auth |
-|---------------------|---------------------------------------|------------------------------------|------|
-| `POST`              | `/api/auth/register/`                 | Register a new advisor account     | No   |
-| `POST`              | `/api/auth/token/`                    | Obtain access + refresh token pair | No   |
-| `POST`              | `/api/auth/token/refresh/`            | Refresh an expired access token    | No   |
-| `GET / POST`        | `/api/clients/`                       | List clients / create a client     | Yes  |
-| `GET`               | `/api/clients/{id}/`                  | Retrieve a client                  | Yes  |
-| `PUT / PATCH`       | `/api/clients/{id}/`                  | Update a client                    | Yes  |
-| `DELETE`            | `/api/clients/{id}/`                  | Delete a client                    | Yes  |
-| `GET`               | `/api/clients/{id}/portfolio-summary/`| Allocation, gain/loss, top holdings| Yes  |
-| `GET / POST`        | `/api/assets/`                        | List assets / create an asset      | Yes  |
-| `GET / PUT / DELETE`| `/api/assets/{id}/`                   | Asset detail / update / delete     | Yes  |
-| `GET / POST`        | `/api/holdings/`                      | List holdings / create a holding   | Yes  |
-| `GET / PUT / DELETE`| `/api/holdings/{id}/`                 | Holding detail / update / delete   | Yes  |
-| `GET / POST`        | `/api/transactions/`                  | List transactions / record one     | Yes  |
-| `GET / PUT / DELETE`| `/api/transactions/{id}/`             | Transaction detail / update / delete | Yes |
-| `GET`               | `/api/schema/`                        | Raw OpenAPI 3.0 spec (JSON/YAML)   | No   |
-| `GET`               | `/api/docs/`                          | Swagger UI                         | No   |
-| `GET`               | `/health/`                            | Health check                       | No   |
+| Method              | Endpoint                                | Description                        | Auth |
+|---------------------|-----------------------------------------|------------------------------------|------|
+| `POST`              | `/api/auth/register/`                   | Register a new user account        | No   |
+| `POST`              | `/api/auth/token/`                      | Obtain access + refresh token pair | No   |
+| `POST`              | `/api/auth/token/refresh/`              | Refresh an expired access token    | No   |
+| `GET / POST`        | `/api/accounts/`                        | List accounts / create an account  | Yes  |
+| `GET`               | `/api/accounts/{id}/`                   | Retrieve an account                | Yes  |
+| `PUT / PATCH`       | `/api/accounts/{id}/`                   | Update an account                  | Yes  |
+| `DELETE`            | `/api/accounts/{id}/`                   | Delete an account                  | Yes  |
+| `GET`               | `/api/accounts/{id}/portfolio-summary/` | Allocation, gain/loss, top holdings| Yes  |
+| `GET`               | `/api/accounts/{id}/export/`            | CSV export (holdings or transactions)| Yes |
+| `GET`               | `/api/accounts/{id}/performance/`       | Return % over 7/30/90/365 days     | Yes  |
+| `GET / POST`        | `/api/assets/`                          | List assets / create an asset      | Yes  |
+| `GET / PUT / DELETE`| `/api/assets/{id}/`                     | Asset detail / update / delete     | Yes  |
+| `GET / POST`        | `/api/holdings/`                        | List holdings / create a holding   | Yes  |
+| `GET / PUT / DELETE`| `/api/holdings/{id}/`                   | Holding detail / update / delete   | Yes  |
+| `GET / POST`        | `/api/transactions/`                    | List transactions / record one     | Yes  |
+| `GET / PUT / DELETE`| `/api/transactions/{id}/`               | Transaction detail / update / delete | Yes |
+| `GET`               | `/api/schema/`                          | Raw OpenAPI 3.0 spec (JSON/YAML)   | No   |
+| `GET`               | `/api/docs/`                            | Swagger UI                         | No   |
+| `GET`               | `/health/`                              | Health check                       | No   |
 
 ---
 
@@ -123,12 +128,27 @@ The API will be available at [http://localhost:8000/api/docs/](http://localhost:
 # Get a token pair
 curl -X POST http://localhost:8000/api/auth/token/ \
   -H "Content-Type: application/json" \
-  -d '{"username": "advisor1", "password": "testpass123"}'
+  -d '{"username": "adviser1", "password": "testpass123"}'
 
 # Use the access token
-curl http://localhost:8000/api/clients/ \
+curl http://localhost:8000/api/accounts/ \
   -H "Authorization: Bearer <access_token>"
 ```
+
+---
+
+## Frontend Dashboard
+
+A lightweight single-page dashboard lives in the `frontend/` directory. No build step or npm required — just static HTML, CSS, and JS.
+
+```bash
+cd frontend
+python3 -m http.server 5500
+```
+
+Open [http://localhost:5500](http://localhost:5500) and log in with `adviser1` / `testpass123` (created by `seed_data`).
+
+The API must be running on `localhost:8000` with CORS configured — see [frontend/CORS_SETUP.md](frontend/CORS_SETUP.md) for instructions.
 
 ---
 
@@ -138,7 +158,7 @@ curl http://localhost:8000/api/clients/ \
 pytest --tb=short -q
 ```
 
-The suite contains 23+ tests covering models, the PricingService, and all API views. All yfinance calls are mocked — the test run makes no real network requests and requires no API keys.
+The suite contains 33 tests covering models, the PricingService, all API views, CSV export, and performance endpoints. All yfinance calls are mocked — the test run makes no real network requests and requires no API keys.
 
 ---
 
@@ -159,9 +179,17 @@ Client-Portfolio-Dashboard/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── pytest.ini
+├── UPGRADE_IDEAS.md
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
+├── frontend/
+│   ├── index.html
+│   ├── style.css
+│   ├── app.js
+│   ├── serve.sh
+│   ├── CORS_SETUP.md
+│   └── README.md
 ├── config/
 │   ├── settings.py
 │   ├── urls.py
@@ -196,7 +224,7 @@ Client-Portfolio-Dashboard/
 
 - **PricingService abstraction** — yfinance is isolated behind a single service class. Swapping to a paid data provider or adding Redis caching requires changes in exactly one place, with no view or serializer edits.
 - **Decimal fields for all monetary values** — floats accumulate rounding error over repeated arithmetic. Every price, quantity, and total is stored as `DecimalField` — a hard requirement for financial data.
-- **Scoped querysets** — `ClientViewSet` filters `Client.objects.all()` to `owner=request.user` before any other filter or pagination runs. Advisors have no query path to another advisor's data, by construction rather than by convention.
+- **Scoped querysets** — each viewset filters to `owner=request.user` before any other filter or pagination runs. Users have no query path to another user's data, by construction rather than by convention.
 - **Cached pricing with staleness check** — `PricingService.get_current_price()` returns the cached `last_price` if it was fetched within the threshold, falls back to the cached value on network error, and only calls yfinance when the cache is stale. This avoids hammering the external API on every portfolio summary request.
 
 ---
@@ -209,19 +237,21 @@ python manage.py seed_data
 
 Creates a realistic dataset ready for exploration:
 
-- **Users**: `admin` / `admin` (superuser), `advisor1` / `testpass123`
-- **Assets**: AAPL, MSFT, VOO (equities), US-TBOND-10Y (bond), GBP-CASH (cash)
-- **Clients**: 3 clients owned by `advisor1`
-- **Holdings**: a mix of asset types across each client
+- **Users**: `admin` / `admin` (superuser), `adviser1` / `testpass123`
+- **Assets**: AAPL (Apple), HSBA.L (HSBC Holdings), ISF.L (iShares FTSE 100 ETF), UK-GILT-10Y (UK Government Gilt), GBP-CASH
+- **Accounts**: 3 accounts owned by `adviser1`
+- **Holdings**: a mix of asset types across each account
 - **Transactions**: 13 realistic buy/sell transactions spread over the past 6 months
 
 ---
 
 ## Future Improvements
 
-- Frontend dashboard (React) consuming this API
 - WebSocket endpoint for live price streaming
 - Celery + Redis for async price refresh on a schedule
 - PostgreSQL for production (swap `DATABASE_URL` in `.env`)
-- Per-advisor rate limiting on the pricing endpoints
+- Per-user rate limiting on the pricing endpoints
 - Audit log for transaction history (immutable event trail)
+- UK tax helper — CGT allowance tracking and ISA contribution limits
+- Target allocation — set goal weightings and track drift against actuals
+- Deploy to VPS with HTTPS

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Portfolio Summary</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f4f4; font-family: 'Helvetica Neue', Arial, sans-serif; color: #333; }
+    .wrapper { max-width: 600px; margin: 32px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background: #222629; padding: 28px 32px; }
+    .header h1 { margin: 0; color: #86C232; font-size: 22px; letter-spacing: -0.5px; }
+    .header p { margin: 6px 0 0; color: #9a9d9f; font-size: 13px; }
+    .body { padding: 28px 32px; }
+    .greeting { font-size: 15px; margin-bottom: 20px; color: #475569; }
+    .stats-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    .stats-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #9a9d9f; padding: 8px 12px; background: #f8f9fa; border-bottom: 1px solid #e2e8f0; }
+    .stats-table td { padding: 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+    .stats-table td:last-child { text-align: right; font-weight: 600; color: #1e293b; }
+    .positive { color: #16a34a; }
+    .negative { color: #dc2626; }
+    .section-title { font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin: 20px 0 8px; }
+    .footer { background: #f8f9fa; padding: 16px 32px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #9a9d9f; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1>Stasha</h1>
+      <p>Monthly Portfolio Summary &mdash; {{ month_label }}</p>
+    </div>
+    <div class="body">
+      <p class="greeting">Hi {{ username }},</p>
+      <p style="font-size:14px;color:#475569;margin-bottom:20px;">
+        Here is your portfolio summary for {{ month_label }}.
+      </p>
+
+      <div class="section-title">Portfolio Overview</div>
+      <table class="stats-table">
+        <tr>
+          <td>Total Portfolio Value</td>
+          <td>&pound;{{ total_value }}</td>
+        </tr>
+        <tr>
+          <td>Transactions This Month</td>
+          <td>{{ transactions_this_month }}</td>
+        </tr>
+        <tr>
+          <td>Dividends Received This Month</td>
+          <td>&pound;{{ dividends_this_month }}</td>
+        </tr>
+      </table>
+
+      {% if best_holding %}
+      <div class="section-title">Top Performer</div>
+      <table class="stats-table">
+        <tr>
+          <td>{{ best_holding.name }} ({{ best_holding.symbol }})</td>
+          <td class="positive">+{{ best_holding.return_pct }}%</td>
+        </tr>
+      </table>
+      {% endif %}
+
+      {% if worst_holding %}
+      <div class="section-title">Worst Performer</div>
+      <table class="stats-table">
+        <tr>
+          <td>{{ worst_holding.name }} ({{ worst_holding.symbol }})</td>
+          <td class="negative">{{ worst_holding.return_pct }}%</td>
+        </tr>
+      </table>
+      {% endif %}
+    </div>
+    <div class="footer">
+      You are receiving this because you have an account on Stasha.
+      This is an automated summary &mdash; please do not reply.
+    </div>
+  </div>
+</body>
+</html>

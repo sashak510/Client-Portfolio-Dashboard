@@ -1,4 +1,4 @@
-"""URL configuration for Client Portfolio Dashboard project."""
+"""URL configuration for Personal Finance Dashboard project."""
 
 from django.contrib import admin
 from django.urls import include, path
@@ -20,6 +20,8 @@ urlpatterns = [
     path("health/", health_check, name="health-check"),
     path("api/", include("apps.portfolio.urls")),
     path("api/auth/", include("apps.accounts.urls")),
+    path("api/audit/", include("apps.audit.urls")),
+    path("api/", include("apps.chat.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
 ]

@@ -7,13 +7,13 @@ import pytest
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from apps.portfolio.models import Asset, Client, Holding
+from apps.portfolio.models import Account, Asset, Holding
 from apps.portfolio.services import PricingService
 
 
 @pytest.fixture
 def user(db) -> User:
-    return User.objects.create_user(username="testadvisor", password="pass123")
+    return User.objects.create_user(username="testuser", password="pass123")
 
 
 @pytest.fixture
@@ -45,12 +45,12 @@ def equity_asset(db) -> Asset:
 
 
 @pytest.fixture
-def client_obj(user: User) -> Client:
-    return Client.objects.create(
+def account_obj(user: User) -> Account:
+    return Account.objects.create(
         owner=user,
-        first_name="Test",
-        last_name="Client",
-        email="test@example.com",
+        account_name="Test ISA",
+        account_type=Account.AccountType.ISA,
+        provider="Vanguard",
     )
 
 
@@ -104,7 +104,7 @@ class TestPricingService:
 class TestPortfolioSummary:
     def test_calculate_portfolio_summary(
         self,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
         cash_asset: Asset,
         bond_asset: Asset,
@@ -114,26 +114,26 @@ class TestPortfolioSummary:
         equity_asset.save()
 
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             quantity=Decimal("10"),
             average_cost=Decimal("150.00"),
         )
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=cash_asset,
             quantity=Decimal("5000"),
             average_cost=Decimal("1.00"),
         )
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=bond_asset,
             quantity=Decimal("5"),
             average_cost=Decimal("980.00"),
         )
 
         with patch("apps.portfolio.services.yf"):
-            summary = PricingService.calculate_portfolio_summary(client_obj)
+            summary = PricingService.calculate_portfolio_summary(account_obj)
 
         # equity: 10 * 200 = 2000, cash: 5000, bond: 5 * 1000 = 5000
         assert summary["total_value"] == Decimal("12000")
@@ -152,23 +152,23 @@ class TestCalculatePerformance:
     def test_calculate_performance_basic(
         self,
         mock_yf: MagicMock,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
     ) -> None:
         mock_ticker = mock_yf.Ticker.return_value
         mock_ticker.fast_info.get.return_value = 200.0
 
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             quantity=Decimal("10"),
             average_cost=Decimal("150.00"),
         )
 
-        result = PricingService.calculate_performance(client_obj, 30)
+        result = PricingService.calculate_performance(account_obj, 30)
 
-        assert result["client_id"] == client_obj.id
-        assert result["client_name"] == str(client_obj)
+        assert result["account_id"] == account_obj.id
+        assert result["account_name"] == str(account_obj)
         assert result["period_days"] == 30
         assert result["current_value"] == Decimal("2000.00")
         assert result["cost_basis"] == Decimal("1500.00")
@@ -185,20 +185,20 @@ class TestCalculatePerformance:
     def test_calculate_performance_zero_cost_basis(
         self,
         mock_yf: MagicMock,
-        client_obj: Client,
+        account_obj: Account,
         equity_asset: Asset,
     ) -> None:
         mock_ticker = mock_yf.Ticker.return_value
         mock_ticker.fast_info.get.return_value = 100.0
 
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             quantity=Decimal("5"),
             average_cost=Decimal("0"),
         )
 
-        result = PricingService.calculate_performance(client_obj, 30)
+        result = PricingService.calculate_performance(account_obj, 30)
         assert result["total_return_pct"] == Decimal("0")
         breakdown = result["holdings_breakdown"][0]
         assert breakdown["return_pct"] == Decimal("0")

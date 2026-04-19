@@ -1,4 +1,4 @@
-# CORS Setup for PortfolioDash Frontend
+# CORS Setup for Stasha Frontend
 
 The Django API needs CORS headers so the frontend can make requests from a different origin.
 

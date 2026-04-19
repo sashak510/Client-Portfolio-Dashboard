@@ -7,21 +7,21 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.utils import timezone
 
-from apps.portfolio.models import Asset, Client, Holding, Transaction
+from apps.portfolio.models import Account, Asset, Holding, Transaction
 
 
 @pytest.fixture
 def user(db) -> User:
-    return User.objects.create_user(username="testadvisor", password="pass123")
+    return User.objects.create_user(username="testuser", password="pass123")
 
 
 @pytest.fixture
-def client_obj(user: User) -> Client:
-    return Client.objects.create(
+def account_obj(user: User) -> Account:
+    return Account.objects.create(
         owner=user,
-        first_name="Test",
-        last_name="Client",
-        email="test@example.com",
+        account_name="Test ISA",
+        account_type=Account.AccountType.ISA,
+        provider="Vanguard",
     )
 
 
@@ -37,25 +37,25 @@ def equity_asset(db) -> Asset:
 
 
 @pytest.mark.django_db
-class TestClientModel:
-    def test_str_representation(self, client_obj: Client) -> None:
-        assert str(client_obj) == "Test Client"
+class TestAccountModel:
+    def test_str_representation(self, account_obj: Account) -> None:
+        assert str(account_obj) == "Test ISA"
 
 
 @pytest.mark.django_db
 class TestHoldingModel:
     def test_unique_together_constraint(
-        self, client_obj: Client, equity_asset: Asset
+        self, account_obj: Account, equity_asset: Asset
     ) -> None:
         Holding.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             quantity=Decimal("10"),
             average_cost=Decimal("150.00"),
         )
         with pytest.raises(IntegrityError):
             Holding.objects.create(
-                client=client_obj,
+                account=account_obj,
                 asset=equity_asset,
                 quantity=Decimal("5"),
                 average_cost=Decimal("160.00"),
@@ -65,12 +65,12 @@ class TestHoldingModel:
 @pytest.mark.django_db
 class TestTransactionModel:
     def test_total_value_stored_correctly(
-        self, client_obj: Client, equity_asset: Asset
+        self, account_obj: Account, equity_asset: Asset
     ) -> None:
         qty = Decimal("10.0000")
         price = Decimal("175.0000")
         txn = Transaction.objects.create(
-            client=client_obj,
+            account=account_obj,
             asset=equity_asset,
             transaction_type=Transaction.TransactionType.BUY,
             quantity=qty,

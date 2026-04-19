@@ -1,4 +1,4 @@
-"""Django settings for Client Portfolio Dashboard project."""
+"""Django settings for Personal Finance Dashboard project."""
 
 import os
 from datetime import timedelta
@@ -30,14 +30,18 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_filters",
     "drf_spectacular",
+    "corsheaders",
     # Local
     "apps.accounts",
     "apps.portfolio",
+    "apps.audit",
+    "apps.chat",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -92,7 +96,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "config.authentication.CookieJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
@@ -116,8 +120,31 @@ SIMPLE_JWT = {
 
 # drf-spectacular
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Client Portfolio Dashboard API",
+    "TITLE": "Personal Finance Dashboard API",
     "VERSION": "1.0.0",
-    "DESCRIPTION": "A multi-asset portfolio tracker API for investment advisers.",
+    "DESCRIPTION": "A multi-asset personal portfolio tracker API.",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+# CORS — allow the frontend dev server
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+]
+CORS_ALLOW_CREDENTIALS = True
+
+# Alpha Vantage — replace yfinance for live equity prices
+# Get a free key at https://www.alphavantage.co/support/#api-key
+ALPHA_VANTAGE_API_KEY = os.environ.get("ALPHA_VANTAGE_API_KEY", "")
+
+# Email settings
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@stash.local")
+
+# OpenAI
+OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
