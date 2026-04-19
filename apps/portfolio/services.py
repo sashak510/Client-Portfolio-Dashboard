@@ -4,6 +4,7 @@ from decimal import Decimal
 from typing import Any
 
 import requests
+import yfinance as yf
 from django.conf import settings
 from django.db.models import QuerySet
 from django.utils import timezone
@@ -43,29 +44,17 @@ class PricingService:
         ):
             return asset.last_price
 
-        # Fetch from Alpha Vantage
-        api_key = getattr(settings, "ALPHA_VANTAGE_API_KEY", "")
-        if api_key:
-            try:
-                response = requests.get(
-                    _ALPHA_VANTAGE_URL,
-                    params={
-                        "function": "GLOBAL_QUOTE",
-                        "symbol": asset.symbol,
-                        "apikey": api_key,
-                    },
-                    timeout=10,
-                )
-                response.raise_for_status()
-                data = response.json()
-                price_str = data.get("Global Quote", {}).get("05. price")
-                if price_str:
-                    asset.last_price = Decimal(str(price_str))
-                    asset.price_updated_at = now
-                    asset.save(update_fields=["last_price", "price_updated_at"])
-                    return asset.last_price
-            except Exception:
-                pass
+        # Fetch live price via yfinance
+        try:
+            ticker = yf.Ticker(asset.symbol)
+            raw = ticker.fast_info.get("lastPrice") or ticker.fast_info.get("regularMarketPrice")
+            if raw is not None:
+                asset.last_price = Decimal(str(raw))
+                asset.price_updated_at = now
+                asset.save(update_fields=["last_price", "price_updated_at"])
+                return asset.last_price
+        except Exception:
+            pass
 
         # Fallback to cached price
         if asset.last_price is not None:
